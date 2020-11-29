@@ -39,5 +39,11 @@ class VarType:
     def size(self):
         return self.n
 
+    def zeros(self):
+        return np.zeros(self.n, np.bool)
+
     def ones(self):
         return np.ones(self.n, np.bool)
+
+    def __repr__(self):
+        return "<%s>%s" % (self.valtype, self.name)

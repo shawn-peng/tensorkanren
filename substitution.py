@@ -20,7 +20,9 @@ class Substitution(temp_dict):
         self.var_indices = defaultdict(lambda: len(self.var_indices))
         if isinstance(d, Substitution):
             self.result = d.result
-            self.var_indices.update(d)
+            self.var_indices.update(d.var_indices)
+        # else:
+        #     raise TypeError('invalid arg type', type(d))
 
     def _reify_last_var(self, u):
         if u in self:
@@ -47,8 +49,9 @@ class Substitution(temp_dict):
     def get_var_index(self, u):
         if isvar(u):
             return self.var_indices[u]
-        elif isinstance(u, int):
-            return u
+        ## disable direct indexing for now
+        # elif isinstance(u, int):
+        #     return u
         else:
             raise TypeError('Invalide type for var', u)
 
@@ -79,7 +82,8 @@ class Substitution(temp_dict):
         if args is None: # constant relation
             newsub.result = newsub.result * rel_tensor # make a copy
             return newsub
-        dims = [newsub.var_indices[arg] for arg in args] # get dims for vars adding new dim if needed
+        # dims = [newsub.var_indices[arg] for arg in args] # get dims for vars adding new dim if needed
+        dims = list(newsub.get_var_indices(args))
         # newsub.var_indices
         dims_sort_ind = np.argsort(dims)
         s0 = rel_tensor.shape
@@ -101,7 +105,7 @@ class Substitution(temp_dict):
         s1flags[dims] = 0
         #newdims = np.arange(ndim1)
         exp_dims = np.arange(newdim)
-        exp_dims = exp_dims[s1flags]
+        exp_dims = list(exp_dims[s1flags])
         rel_tensor = rel_tensor.transpose(dims_sort_ind) #order
         if exp_dims:
             rel_tensor = np.expand_dims(rel_tensor, exp_dims) #align

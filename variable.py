@@ -52,6 +52,9 @@ class TypedVar(Var):
         super().__init__(name)
         self.type = type
 
+    def __repr__(self):
+        return "TypedVar: %s(%s)" % (self.name, self.type)
+
 
 
 
