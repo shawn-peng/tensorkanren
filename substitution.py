@@ -76,6 +76,9 @@ class Substitution(temp_dict):
         # n dims of rel_tensor should match number of args
         # args is used only to indicate dimensions
         newsub = Substitution(self)
+        if args is None: # constant relation
+            newsub.result = newsub.result * rel_tensor # make a copy
+            return newsub
         dims = [newsub.var_indices[arg] for arg in args] # get dims for vars adding new dim if needed
         # newsub.var_indices
         dims_sort_ind = np.argsort(dims)
@@ -171,6 +174,8 @@ class Substitution(temp_dict):
 
         newsub.result = self.result * data
         return newsub
+
+    # def
 
 
     # def _walk(self, x):

@@ -1,4 +1,6 @@
 
+import numpy as np
+
 _var_types = {}
 
 class VarType:
@@ -36,3 +38,6 @@ class VarType:
 
     def size(self):
         return self.n
+
+    def ones(self):
+        return np.ones(self.n, np.bool)
