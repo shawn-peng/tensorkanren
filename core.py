@@ -9,38 +9,38 @@ from toolz import groupby, map
 # Goals #
 #########
 
-class Stream:
-    def __init__(self, iteratable):
-        self.iter = iter(iteratable)
-        self._move_next()
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.first is not None:
-            ret = self.first
-            self._move_next()
-            return ret
-        else:
-            raise StopIteration
-
-    def _move_next(self):
-        try:
-            self.first = next(self.iter)
-        except StopIteration:
-            self.first = None
-
-    def empty(self):
-        return self.first is None
-
-
-def fail(s):
-    return Stream(())
-
-
-def success(s):
-    return Stream((s, ))
+# class Stream:
+#     def __init__(self, iteratable):
+#         self.iter = iter(iteratable)
+#         self._move_next()
+#
+#     def __iter__(self):
+#         return self
+#
+#     def __next__(self):
+#         if self.first is not None:
+#             ret = self.first
+#             self._move_next()
+#             return ret
+#         else:
+#             raise StopIteration
+#
+#     def _move_next(self):
+#         try:
+#             self.first = next(self.iter)
+#         except StopIteration:
+#             self.first = None
+#
+#     def empty(self):
+#         return self.first is None
+#
+#
+# def fail(s):
+#     return Stream(())
+#
+#
+# def success(s):
+#     return Stream((s, ))
 
 
 # def fail(s):
@@ -280,30 +280,33 @@ def success(s):
 #     Asserts that predicate applies to all elements of coll.
 #     """
 #     return (lall, ) + tuple((predicate, x) for x in coll)
-#
-#
-# ########################
-# # User level execution #
-# ########################
-#
-#
-# def run(n, x, *goals):
-#     """ Run a logic program.  Obtain n solutions to satisfy goals.
-#
-#     n     - number of desired solutions.  See ``take``
-#             0 for all
-#             None for a lazy sequence
-#     x     - Output variable
-#     goals - a sequence of goals.  All must be true
-#
-#     >>> from mykanren import run, var, eq
-#     >>> x = var()
-#     >>> run(1, x, eq(x, 1))
-#     (1,)
-#     """
-#     results = map(partial(reify, x), goaleval(lall(*goals))({}))
-#     return take(n, unique(results, key=multihash))
-#
+
+
+########################
+# User level execution #
+########################
+
+
+def run(n, x, *goals):
+    """ Run a logic program.  Obtain n solutions to satisfy goals.
+
+    n     - number of desired solutions.  See ``take``
+            0 for all
+            None for a lazy sequence
+    x     - Output variable
+    goals - a sequence of goals.  All must be true
+
+    >>> from mykanren import run, var, eq
+    >>> x = var()
+    >>> run(1, x, eq(x, 1))
+    (1,)
+    """
+    # results = map(partial(reify, x), goaleval(lall(*goals))({}))
+    # return take(n, unique(results, key=multihash))
+    pass
+
+
+
 # ###################
 # # Goal Evaluation #
 # ###################

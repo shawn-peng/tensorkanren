@@ -133,7 +133,18 @@ class Relation(object):
             if self.facts_tensor is None:
                 self.compile_facts()
 
-            newsub = sub.unify(self.facts_tensor, *args)
+            nonlocal args
+            nargs = len(args)
+            varargs = []
+            ind = [slice(None)] * nargs
+            for i, arg in enumerate(args):
+                if isvar(arg):
+                    varargs.append(arg)
+                else:
+                    ind[i] = self.arg_types[i].encode(arg)
+            ind = tuple(ind)
+
+            newsub = sub.unify(self.facts_tensor[ind], *varargs)
             # for arg in reversed(args2):
             #     if isvar(arg):
             #         #m = sub.reify_last_var(arg)

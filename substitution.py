@@ -78,6 +78,7 @@ class Substitution(temp_dict):
     def unify(self, rel_tensor, *args):
         # n dims of rel_tensor should match number of args
         # args is used only to indicate dimensions
+        rel_tensor = rel_tensor
         newsub = Substitution(self)
         if args is None: # constant relation
             newsub.result = newsub.result * rel_tensor # make a copy
@@ -154,7 +155,15 @@ class Substitution(temp_dict):
         return r1 & r2
 
     def __repr__(self):
-        return "<Substituion>:\n\t<vars>: %s,\n\t<result tensor>: %s" % (str(self.var_indices), str(self.result))
+        # return "<Substituion>:\n\t<vars>: %s,\n\t<result tensor>: %s" % (str(self.var_indices), str(self.result))
+        return "<Substituion>:\n\t<vars>: %s,\n\t<non-zeros>: %s" % (str(self.var_indices), str(self.result.sum()))
+
+    def reduce(self, *args, op=np.any):
+        dims = self.get_var_indices(args)
+        dims_sort_ind = np.argsort(dims)
+        dims_trans = np.zeros(len(dims_sort_ind), int)
+        dims_trans[dims_sort_ind] = np.arange(len(dims_sort_ind))
+        return op(self.result, dims).transpose(dims_trans)
 
     def reduce_to(self, *args, op=np.any):
         if not args:
@@ -178,6 +187,9 @@ class Substitution(temp_dict):
 
         newsub.result = self.result * data
         return newsub
+
+    def count(self, *args):
+        return self.reduce_to(*args).sum()
 
     # def
 

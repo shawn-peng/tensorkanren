@@ -48,8 +48,10 @@ def isvar(o):
 
 
 class TypedVar(Var):
-    def __init__(self, type: VarType, name: str):
+    def __init__(self, type, name: str):
         super().__init__(name)
+        if isinstance(type, str):
+            type = VarType.get_type(type)
         self.type = type
 
     def __repr__(self):
