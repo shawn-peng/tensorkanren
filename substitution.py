@@ -171,13 +171,15 @@ class Substitution(temp_dict):
     def reduce_to(self, *args, op=torch.any):
         if not args:
             return op(self.result)
-        dims = self.get_var_indices(args)
-        r_dim = torch.FloatTensor(tuple([i for i in range(len(self)) if i not in dims]))
-        dims_sort_ind = torch.argsort( torch.FloatTensor(dims))
+        dims = torch.tensor(self.get_var_indices(args),dtype=int)
+        r_dim = torch.tensor(tuple([i for i in range(len(self)) if i not in dims]),dtype=int)
+        dims_sort_ind = torch.argsort(dims)
         # print(dims_sort_ind)
         dims_trans = torch.zeros(len(dims_sort_ind), dtype = int)
         dims_trans[dims_sort_ind] = torch.arange(len(dims_sort_ind))
-        return op(self.result, r_dim).transpose(dims_trans)
+        # print(self.result)
+        # print(r_dim)
+        return torch.sparse.any(self.result,r_dim).transpose(dims_trans)
 
     def filter(self, args, data):
         newsub = Substitution(self)

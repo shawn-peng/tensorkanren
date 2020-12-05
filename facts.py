@@ -15,7 +15,7 @@ import torch
 #         if isinstance(it, tuple):
 
 
-relation_facts_tensor = torch.tensor #torch.ndarray
+relation_facts_tensor = torch.sparse #torch.ndarray
 
 class Relation(object):
     _id = 0
