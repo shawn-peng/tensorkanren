@@ -3,8 +3,8 @@ from temp_dict import temp_dict
 
 from collections import defaultdict
 from itertools import starmap
-import numpy as np
-
+# import numpy as np
+import torch
 from .variable import Var, TypedVar, VarType
 
 class typedValue:
@@ -16,7 +16,9 @@ class typedValue:
 class Substitution(temp_dict):
     def __init__(self, d: dict):
         super(Substitution, self).__init__(d)
-        self.result = np.array([1], np.bool)
+        # self.result = torch.array([1], dtype=torch.bool)
+        self.result = torch.ones([1],dtype = torch.bool)
+        # print(self.result)
         self.var_indices = defaultdict(lambda: len(self.var_indices))
         if isinstance(d, Substitution):
             self.result = d.result
@@ -64,13 +66,14 @@ class Substitution(temp_dict):
         if sumdims:
             val = self.result.any(sumdims)
         else: # all dims in args
-            val = self.result.transpose(ind) # may need transpose
+            # print(ind)
+            val = self.result.transpose(ind[0],ind[0]-1) # may need transpose
         return val
 
     def reify(self, *args):
         # ind = self.get_var_index(u)
         res = self.reduce_to(*args)
-        for ind in np.argwhere(res):
+        for ind in torch.argwhere(res):
             yield tuple((starmap(lambda arg, v: arg.type.decode(v), zip(args, ind))))
 
     # def decode(self):
@@ -86,7 +89,7 @@ class Substitution(temp_dict):
         # dims = [newsub.var_indices[arg] for arg in args] # get dims for vars adding new dim if needed
         dims = list(newsub.get_var_indices(args))
         # newsub.var_indices
-        dims_sort_ind = np.argsort(dims)
+        dims_sort_ind = torch.argsort(torch.FloatTensor(dims))
         s0 = rel_tensor.shape
         ndim1 = len(newsub.var_indices)
         # s1 = [1]*ndim1
@@ -96,20 +99,20 @@ class Substitution(temp_dict):
         newdim = ndim0
         if ndim0 < ndim1:
             newdim = ndim1
-            newsub.result = np.expand_dims(newsub.result, list(range(ndim0, ndim1)))
+            newsub.result = torch.expand_dims(newsub.result, list(range(ndim0, ndim1)))
 
         # s1 = []
         # for i in range(newdim):
         #     if i not in dims:
         #         s1.append(i)
-        s1flags = np.ones(newdim, np.bool)
+        s1flags = torch.ones(newdim, dtype=torch.bool)
         s1flags[dims] = 0
-        #newdims = np.arange(ndim1)
-        exp_dims = np.arange(newdim)
+        #newdims = torch.arange(ndim1)
+        exp_dims = torch.arange(newdim)
         exp_dims = list(exp_dims[s1flags])
-        rel_tensor = rel_tensor.transpose(dims_sort_ind) #order
+        rel_tensor = rel_tensor.transpose(dims_sort_ind[0],dims_sort_ind[0]-1) #order
         if exp_dims:
-            rel_tensor = np.expand_dims(rel_tensor, exp_dims) #align
+            rel_tensor = torch.expand_dims(rel_tensor, exp_dims) #align
 
         newsub.result = newsub.result * rel_tensor # broadcasting other dimensions
 
@@ -128,10 +131,10 @@ class Substitution(temp_dict):
         r2 = other.result
         if n1 > n2:
             newsub.var_indices.update(self.var_indices)
-            r2 = np.expand_dims(r2, range(n2, n1))
+            r2 = torch.expand_dims(r2, range(n2, n1))
         elif n1 < n2:
             newsub.var_indices.update(other.var_indices)
-            r1 = np.expand_dims(r1, range(n1, n2))
+            r1 = torch.expand_dims(r1, range(n1, n2))
 
         newsub.result = r1 | r2
         return newsub
@@ -148,9 +151,9 @@ class Substitution(temp_dict):
         r1 = self.result
         r2 = other.result
         if n1 > n2:
-            r2 = np.expand_dims(r2, range(n2, n1))
+            r2 = torch.expand_dims(r2, range(n2, n1))
         elif n1 < n2:
-            r1 = np.expand_dims(r1, range(n1, n2))
+            r1 = torch.expand_dims(r1, range(n1, n2))
 
         return r1 & r2
 
@@ -158,21 +161,22 @@ class Substitution(temp_dict):
         # return "<Substituion>:\n\t<vars>: %s,\n\t<result tensor>: %s" % (str(self.var_indices), str(self.result))
         return "<Substituion>:\n\t<vars>: %s,\n\t<non-zeros>: %s" % (str(self.var_indices), str(self.result.sum()))
 
-    def reduce(self, *args, op=np.any):
+    def reduce(self, *args, op=torch.any):
         dims = self.get_var_indices(args)
-        dims_sort_ind = np.argsort(dims)
-        dims_trans = np.zeros(len(dims_sort_ind), int)
-        dims_trans[dims_sort_ind] = np.arange(len(dims_sort_ind))
+        dims_sort_ind = torch.argsort(dims)
+        dims_trans = torch.zeros(len(dims_sort_ind), int)
+        dims_trans[dims_sort_ind] = torch.arange(len(dims_sort_ind))
         return op(self.result, dims).transpose(dims_trans)
 
-    def reduce_to(self, *args, op=np.any):
+    def reduce_to(self, *args, op=torch.any):
         if not args:
             return op(self.result)
         dims = self.get_var_indices(args)
-        r_dim = tuple([i for i in range(len(self)) if i not in dims])
-        dims_sort_ind = np.argsort(dims)
-        dims_trans = np.zeros(len(dims_sort_ind), int)
-        dims_trans[dims_sort_ind] = np.arange(len(dims_sort_ind))
+        r_dim = torch.FloatTensor(tuple([i for i in range(len(self)) if i not in dims]))
+        dims_sort_ind = torch.argsort( torch.FloatTensor(dims))
+        # print(dims_sort_ind)
+        dims_trans = torch.zeros(len(dims_sort_ind), dtype = int)
+        dims_trans[dims_sort_ind] = torch.arange(len(dims_sort_ind))
         return op(self.result, r_dim).transpose(dims_trans)
 
     def filter(self, args, data):
@@ -183,7 +187,7 @@ class Substitution(temp_dict):
         exp_ind = list(range(len(self)))
         for i in ind:
             exp_ind.remove(i)
-        data = np.expand_dims(data, exp_ind)
+        data = torch.expand_dims(data, exp_ind)
 
         newsub.result = self.result * data
         return newsub

@@ -1,13 +1,13 @@
 from unification import unify, reify
 from unification.variable import isvar
 from .substitution import Substitution
-import numpy as np
+# import numpy as np
 
 from .util import intersection
 from toolz import merge
 
 from collections import defaultdict
-
+import torch
 # class _recursive_enumerate(object):
 # def _recursive_enumerate(iter, ):
 #     i = 0
@@ -15,7 +15,7 @@ from collections import defaultdict
 #         if isinstance(it, tuple):
 
 
-relation_facts_tensor = np.ndarray
+relation_facts_tensor = torch.tensor #torch.ndarray
 
 class Relation(object):
     _id = 0
@@ -70,8 +70,8 @@ class Relation(object):
         #     self.key_indices.append(key_map)
 
         print(self.facts)
-        # self.facts_tensor = np.array(list(self.facts))
-        self.facts_tensor = np.zeros(shape, np.bool)
+        # self.facts_tensor = torch.array(list(self.facts))
+        self.facts_tensor = torch.zeros(shape, dtype=torch.bool)
         for fact in self.facts:
             ind = self.encode_fact(*fact)
             self.facts_tensor[ind] = True

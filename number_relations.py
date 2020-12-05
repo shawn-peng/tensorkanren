@@ -1,5 +1,5 @@
 
-import numpy as np
+# import numpy as np
 
 from .facts import Relation
 from .substitution import Substitution
@@ -30,7 +30,7 @@ class NumberRelation(Relation):
             # def get_rel_tensor():
             if not isvar(arg1):
                 if not isvar(arg2):  # const, const
-                    rel_tensor = np.array(False, np.bool)
+                    rel_tensor = torch.array(False, dtype=torch.bool)
                     return sub.unify(rel_tensor)
                 else:  # const, var
                     rel_tensor = arg2.type.zeros()
@@ -49,7 +49,7 @@ class NumberRelation(Relation):
                     assert (arg1.type == arg2.type)
                     # if include, set True on diag, so pass 0, otherwise pass 1
                     # lower triangle set True, places a1 > a2
-                    rel_tensor = np.tri(arg1.type.size(), arg2.type.size(), 1-self.i, np.bool)  # places a1 > a2
+                    rel_tensor = torch.tri(arg1.type.size(), arg2.type.size(), 1-self.i, dtype=torch.bool)  # places a1 > a2
                     # for - direction, a1 < a2, take transpose
                     rel_tensor = rel_tensor.T
                     return sub.unify(rel_tensor, arg1, arg2)
@@ -74,7 +74,7 @@ def _gt(arg1, arg2):
         # def get_rel_tensor():
         if not isvar(arg1):
             if not isvar(arg2): # const, const
-                rel_tensor = np.array(False, np.bool)
+                rel_tensor = torch.array(False, dtype=torch.bool)
                 return sub.unify(rel_tensor)
             else: # const, var
                 rel_tensor = arg2.type.ones()
@@ -89,7 +89,7 @@ def _gt(arg1, arg2):
                 return sub.unify(rel_tensor, arg1)
             else: # var, var
                 assert(arg1.type == arg2.type)
-                rel_tensor = np.tri(arg1.type.size(), arg2.type.size(), 1, np.bool) # places a1 > a2
+                rel_tensor = torch.tri(arg1.type.size(), arg2.type.size(), 1, dtype=torch.bool) # places a1 > a2
                 return sub.unify(rel_tensor, arg1, arg2)
 
         # if isvar(arg1):
@@ -104,7 +104,7 @@ def _lt(arg1, arg2):
         # def get_rel_tensor():
         if not isvar(arg1):
             if not isvar(arg2): # const, const
-                rel_tensor = np.array(False, np.bool)
+                rel_tensor = torch.array(False, dtype=torch.bool)
                 return sub.unify(rel_tensor)
             else: # const, var
                 rel_tensor = arg2.type.ones()
@@ -119,7 +119,7 @@ def _lt(arg1, arg2):
                 return sub.unify(rel_tensor, arg1)
             else: # var, var
                 assert(arg1.type == arg2.type)
-                rel_tensor = np.tri(arg1.type.size(), arg2.type.size(), 0, np.bool).T # places a1 < a2
+                rel_tensor = torch.tri(arg1.type.size(), arg2.type.size(), 0, dtype=torch.bool).T # places a1 < a2
                 return sub.unify(rel_tensor, arg1, arg2)
 
         # if isvar(arg1):

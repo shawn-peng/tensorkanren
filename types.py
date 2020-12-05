@@ -1,5 +1,5 @@
 
-import numpy as np
+# import numpy as np
 
 _var_types = {}
 
@@ -67,12 +67,12 @@ class VarType:
     def zeros(self):
         if not self.compiled:
             self.compile_index()
-        return np.zeros(self.n, np.bool)
+        return torch.zeros(self.n, dtype=torch.bool)
 
     def ones(self):
         if not self.compiled:
             self.compile_index()
-        return np.ones(self.n, np.bool)
+        return torch.ones(self.n, dtype=torch.bool)
 
     def __repr__(self):
         return "<%s>%s" % (self.valtype, self.name)
