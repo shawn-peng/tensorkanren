@@ -17,7 +17,8 @@ class Substitution(temp_dict):
     def __init__(self, d: dict):
         super(Substitution, self).__init__(d)
         # self.result = torch.array([1], dtype=torch.bool)
-        self.result = torch.ones([1],dtype = torch.bool)
+        # self.result = torch.ones([1],dtype = torch.bool)
+        self.result = torch.sparse_coo_tensor([[0]], [[1]], dtype = torch.bool)
         # print(self.result)
         self.var_indices = defaultdict(lambda: len(self.var_indices))
         if isinstance(d, Substitution):
